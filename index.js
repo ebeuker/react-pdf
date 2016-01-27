@@ -12,7 +12,8 @@ var Pdf = React.createClass({
     page: React.PropTypes.number,
     scale: React.PropTypes.number,
     onDocumentComplete: React.PropTypes.func,
-    onPageComplete: React.PropTypes.func
+    onPageComplete: React.PropTypes.func,
+    httpHeader: React.PropTypes.object
   },
   getInitialState: function() {
     return { };
@@ -28,7 +29,16 @@ var Pdf = React.createClass({
   },
   _loadPDFDocument: function(props) {
     if(!!props.file){
-      if (typeof props.file === 'string') return PDFJS.getDocument(props.file).then(this._onDocumentComplete);
+      if (typeof props.file === 'string') {
+        if (props.httpHeader) {
+          var docInitParams = new Object(); 
+          docInitParams.url = props.file; 
+          docInitParams.httpHeaders = props.httpHeader; 
+          
+          return PDFJS.getDocument(docInitParams).then(this._onDocumentComplete);
+        }
+        return PDFJS.getDocument(props.file).then(this._onDocumentComplete);
+      }
       // Is a File object
       var reader = new FileReader(), self = this;
       reader.onloadend = function() {
